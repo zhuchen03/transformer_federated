@@ -34,7 +34,8 @@ from optimization.emnist_ae import federated_emnist_ae
 from optimization.shakespeare import federated_shakespeare
 from optimization.shared import fed_avg_schedule
 from optimization.shared import optimizer_utils
-from optimization.stackoverflow import federated_stackoverflow
+# from optimization.stackoverflow import federated_stackoverflow
+import federated_stackoverflow
 from optimization.stackoverflow_lr import federated_stackoverflow_lr
 from utils import utils_impl
 
@@ -114,13 +115,19 @@ with utils_impl.record_hparam_flags() as so_nwp_flags:
       'to use from test set for per-round validation.')
   flags.DEFINE_integer('so_nwp_embedding_size', 96,
                        'Dimension of word embedding to use.')
-  flags.DEFINE_integer('so_nwp_latent_size', 670,
+  flags.DEFINE_integer('so_nwp_latent_size', 128,
                        'Dimension of latent size to use in recurrent cell')
-  flags.DEFINE_integer('so_nwp_num_layers', 1,
+  flags.DEFINE_integer('so_nwp_num_layers', 5,
                        'Number of stacked recurrent layers to use.')
   flags.DEFINE_boolean(
-      'so_nwp_shared_embedding', False,
-      'Boolean indicating whether to tie input and output embeddings.')
+    'so_nwp_shared_embedding', False,
+    'Boolean indicating whether to tie input and output embeddings.')
+  flags.DEFINE_string(
+    'so_nwp_model_type', 'transformer',
+    'Specifying the model for training.')
+  flags.DEFINE_integer(
+    'so_nwp_dff', 2048,
+    'Specifying the model for training.')
 
 with utils_impl.record_hparam_flags() as so_lr_flags:
   # Stack Overflow LR flags

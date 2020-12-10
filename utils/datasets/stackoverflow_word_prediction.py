@@ -20,6 +20,8 @@ import attr
 import numpy as np
 import tensorflow as tf
 import tensorflow_federated as tff
+from utils.datasets.tff_datasets_stackoverflow import load_data as tff_load_stackoverflow
+
 
 EVAL_BATCH_SIZE = 100
 
@@ -344,7 +346,8 @@ def get_centralized_datasets(
       max_elements_per_client=-1,
       max_shuffle_buffer_size=test_shuffle_buffer_size)
 
-  raw_train, _, raw_test = tff.simulation.datasets.stackoverflow.load_data()
+  # raw_train, _, raw_test = tff.simulation.datasets.stackoverflow.load_data()
+  raw_train, _, raw_test = tff_load_stackoverflow(cache_dir="datasets")
   stackoverflow_train = raw_train.create_tf_dataset_from_all_clients()
   stackoverflow_train = train_preprocess_fn(stackoverflow_train)
 

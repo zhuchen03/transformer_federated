@@ -26,6 +26,8 @@ from utils import training_loop
 from utils import training_utils
 from utils.datasets import stackoverflow_word_prediction
 from utils.models import stackoverflow_models
+from utils.datasets.tff_datasets_stackoverflow import load_data as tff_load_stackoverflow
+
 
 
 def run_federated(
@@ -135,7 +137,8 @@ def run_federated(
         keras_metrics.NumTokensCounter(masked_tokens=[pad_token])
     ]
 
-  train_clientdata, _, _ = tff.simulation.datasets.stackoverflow.load_data()
+  # train_clientdata, _, _ = tff.simulation.datasets.stackoverflow.load_data()
+  train_clientdata, _, _ = tff_load_stackoverflow(cache_dir="datasets")
 
   # TODO(b/161914546): consider moving evaluation to use
   # `tff.learning.build_federated_evaluation` to get metrics over client
