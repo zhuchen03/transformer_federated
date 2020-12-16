@@ -11,7 +11,7 @@ latent=${6}
 layers=${7}
 dff=${8}
 
-bsize=15
+bsize=16
 
 LD_LIBRARY_PATH="/opt/common/cudnn/cudnn-10.1-7.6.5/lib64:/opt/common/cuda/cuda-10.1.243/extras/CUPTI/lib64:${LD_LIBRARY_PATH}"
 
