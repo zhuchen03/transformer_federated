@@ -44,7 +44,7 @@ class SpecialTokens(object):
 
 def create_vocab(vocab_size: int) -> List[str]:
   """Creates vocab from `vocab_size` most common words in Stackoverflow."""
-  vocab_dict = tff.simulation.datasets.stackoverflow.load_word_counts()
+  vocab_dict = tff.simulation.datasets.stackoverflow.load_word_counts(cache_dir='datasets')
   return list(vocab_dict.keys())[:vocab_size]
 
 
@@ -169,9 +169,9 @@ def create_preprocess_fn(
 
   feature_dtypes = collections.OrderedDict(
       creation_date=tf.string,
-      title=tf.string,
       score=tf.int64,
       tags=tf.string,
+      title=tf.string,
       tokens=tf.string,
       type=tf.string,
   )
@@ -346,7 +346,7 @@ def get_centralized_datasets(
       max_elements_per_client=-1,
       max_shuffle_buffer_size=test_shuffle_buffer_size)
 
-  # raw_train, _, raw_test = tff.simulation.datasets.stackoverflow.load_data()
+  # raw_train, _, raw_test = tff.simulation.datasets.stackoverflow.load_data(cache_dir="datasets")
   raw_train, _, raw_test = tff_load_stackoverflow(cache_dir="datasets")
   stackoverflow_train = raw_train.create_tf_dataset_from_all_clients()
   stackoverflow_train = train_preprocess_fn(stackoverflow_train)

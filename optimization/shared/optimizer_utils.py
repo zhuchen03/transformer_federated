@@ -486,6 +486,10 @@ def inv_sqrt_schedule_builder(base_value, decay_steps, decay_rate, staircase):
       return base_value / tf.sqrt(1.0 + decay_rate * (round_num // decay_steps))
   else:
     def inv_sqrt_decay_fn(round_num):
+      # if decay_steps == 0:
+      #   print("decay steps 0!!!")
+      # elif 1.0 + decay_rate * (round_num / decay_steps) == 0:
+      #   print(f"sum 0!!! values: {decay_rate}, {round_num}, {decay_steps}")
       return base_value / tf.sqrt(1.0 + decay_rate * (round_num / decay_steps))
 
   return inv_sqrt_decay_fn
@@ -542,6 +546,9 @@ def create_lr_schedule_from_flags(
   lr_decay_steps = flags.FLAGS[prefixed('lr_decay_steps')].value
   lr_decay_rate = flags.FLAGS[prefixed('lr_decay_rate')].value
   lr_staircase = flags.FLAGS[prefixed('lr_staircase')].value
+  # print("{}, {}, {}".format(lr_decay_rate, lr_decay_steps, lr_staircase))
+  # import pdb
+  # pdb.set_trace()
 
   if lr_schedule_type == 'exp_decay':
     return warmup_and_decay_schedule_builder(

@@ -4,32 +4,42 @@ function runexp {
 
 gpu=${1}
 model=${2}
-lr=${3}
-iters=${4}
-latent=${5}
-layers=${6}
-dff=${7}
+slr=${3}
+clr=${4}
+clients=${5}
+latent=${6}
+layers=${7}
+dff=${8}
+
+bsize=15
 
 LD_LIBRARY_PATH="/opt/common/cudnn/cudnn-10.1-7.6.5/lib64:/opt/common/cuda/cuda-10.1.243/extras/CUPTI/lib64:${LD_LIBRARY_PATH}"
 
 module unload cuda/10.2.89
 module load cuda/10.1.243
 
-expname=nwp-federated-${model}-lr_${lr}-iters_${iters}-layers_${layers}-latent_${latent}-dff_${dff}
+expname=nwp-federated-${model}-slr_${slr}-clr_${clr}-clients_${clients}-layers_${layers}-latent_${latent}-dff_${dff}-bsize${bsize}
 
-cmd="
-CUDA_VISIBLE_DEVICES=${gpu} python federated_trainer.py
- --task=stackoverflow_nwp --total_rounds=2
- --client_optimizer=adam --client_learning_rate=1e-3
-    --client_batch_size=16  --server_optimizer=adam
- --server_learning_rate=1e-2 --clients_per_round=10
+# --task=stackoverflow_nwp --total_rounds=1500  --client_batch_size=16
+# --so_nwp_max_elements_per_user 1000  --clients_per_round=50
+cmd="CUDA_VISIBLE_DEVICES=${gpu}
+ python federated_trainer.py
+  --task=stackoverflow_nwp --total_rounds=3000  --client_batch_size=${bsize}
+  --so_nwp_model_type=${model}
+ --so_nwp_max_elements_per_user 2000  --clients_per_round=${clients}
+ --client_optimizer=adam --client_learning_rate=${clr}
+ --client_lr_schedule=inv_sqrt_decay  --client_lr_warmup_steps=300 --client_lr_decay_steps=300 --client_lr_decay_rate=1
+ --server_optimizer=adam --server_learning_rate=${slr}
+ --server_lr_schedule=inv_sqrt_decay  --server_lr_warmup_steps=300 --server_lr_decay_steps=300 --server_lr_decay_rate=1
+ --so_nwp_num_layers=${layers} --so_nwp_latent_size=${latent} --so_nwp_dff=${dff}
  --client_epochs_per_round=1 --experiment_name=nwp_federated
-
+ --root_output_dir chks/${expname}
+ > logs/${expname}.log 2>&1 &
 "
 
 # --lr ${lr} --iters ${iters} --latent_size ${latent}
 #    --layers ${layers}  --dff ${dff} --model ${model}
-#  > logs/${expname}.log 2>&1 &
+#
 
 eval ${cmd}
 
@@ -38,16 +48,7 @@ echo logs/${expname}.log
 
 }
 
-# runexp  gpu model         lr      iters    latent  layers  dff
-#runexp   0    lstm         2e-3      250796   670      2       256
-#runexp   0    lstm         3e-3      250796   670      2       256
-#runexp   1    lstm         4e-3      250796   670      2       256
+# runexp  gpu model          slr  clr   clients    latent  layers  dff
+runexp   0    transformer   1e-3  4e-5   25         96      3       1536
 
-#runexp   1    transformer  1e-3      250796     96   4       1536
-#runexp   0    transformer  1e-3      250796     96   4       2048
-runexp   0    transformer  1e-3      250796     96   3       1536
-runexp   1    transformer  1e-3      250796     96   5       2048
-runexp   2    transformer  1e-3      250796     96   3       1536
-runexp   3    transformer  1e-3      250796     96   5       2048
 
-#runexp   0    3e-4      250796    256   1

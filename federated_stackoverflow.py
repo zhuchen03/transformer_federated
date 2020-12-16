@@ -31,6 +31,7 @@ from utils.datasets.tff_datasets_stackoverflow import load_data as tff_load_stac
 
 
 def run_federated(
+    model_type: str,
     iterative_process_builder: Callable[..., tff.templates.IterativeProcess],
     client_epochs_per_round: int,
     client_batch_size: int,
@@ -44,6 +45,7 @@ def run_federated(
     embedding_size: Optional[int] = 96,
     latent_size: Optional[int] = 670,
     num_layers: Optional[int] = 1,
+    dff: Optional[int] = 2048,
     shared_embedding: Optional[bool] = False,
     total_rounds: Optional[int] = 1500,
     experiment_name: Optional[str] = 'federated_so_nwp',
@@ -104,15 +106,29 @@ def run_federated(
       on supported arguments, see
       `federated_research/utils/training_utils.py`.
   """
-
-  model_builder = functools.partial(
-      stackoverflow_models.create_recurrent_model,
+  if model_type == 'transformer':
+    model_builder = functools.partial(
+      stackoverflow_models.create_transformer_lm,
       vocab_size=vocab_size,
       num_oov_buckets=num_oov_buckets,
-      embedding_size=embedding_size,
-      latent_size=latent_size,
+      d_embed=embedding_size,
+      d_model=latent_size,
+      dff=dff,
+      num_heads=8,
       num_layers=num_layers,
-      shared_embedding=shared_embedding)
+      max_position_encoding=10000,
+      dropout=0.1,
+      name='stackoverflow-transformer',
+    )
+  else:
+    model_builder = functools.partial(
+        stackoverflow_models.create_recurrent_model,
+        vocab_size=vocab_size,
+        num_oov_buckets=num_oov_buckets,
+        embedding_size=embedding_size,
+        latent_size=latent_size,
+        num_layers=num_layers,
+        shared_embedding=shared_embedding)
 
   loss_builder = functools.partial(
       tf.keras.losses.SparseCategoricalCrossentropy, from_logits=True)
