@@ -11,7 +11,8 @@ latent=${6}
 layers=${7}
 dff=${8}
 
-bsize=16
+bsize=15
+warmup_steps=300
 
 LD_LIBRARY_PATH="/opt/common/cudnn/cudnn-10.1-7.6.5/lib64:/opt/common/cuda/cuda-10.1.243/extras/CUPTI/lib64:${LD_LIBRARY_PATH}"
 
@@ -28,9 +29,9 @@ cmd="CUDA_VISIBLE_DEVICES=${gpu}
   --so_nwp_model_type=${model}
  --so_nwp_max_elements_per_user 2000  --clients_per_round=${clients}
  --client_optimizer=adam --client_learning_rate=${clr}
- --client_lr_schedule=inv_sqrt_decay  --client_lr_warmup_steps=300 --client_lr_decay_steps=300 --client_lr_decay_rate=1
+ --client_lr_schedule=inv_sqrt_decay  --client_lr_warmup_steps=${warmup_steps} --client_lr_decay_steps=${warmup_steps} --client_lr_decay_rate=1
  --server_optimizer=adam --server_learning_rate=${slr}
- --server_lr_schedule=inv_sqrt_decay  --server_lr_warmup_steps=300 --server_lr_decay_steps=300 --server_lr_decay_rate=1
+ --server_lr_schedule=inv_sqrt_decay  --server_lr_warmup_steps=${warmup_steps} --server_lr_decay_steps=${warmup_steps} --server_lr_decay_rate=1
  --so_nwp_num_layers=${layers} --so_nwp_latent_size=${latent} --so_nwp_dff=${dff}
  --client_epochs_per_round=1 --experiment_name=nwp_federated
  --root_output_dir chks/${expname}
